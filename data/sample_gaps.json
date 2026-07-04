@@ -1,0 +1,50 @@
+[
+  {
+    "bank": "Standard Chartered",
+    "country": "BD",
+    "accounts": ["ACCT-4101", "ACCT-4102"],
+    "expected_by": "2026-06-19T06:00:00Z",
+    "cycle": "APAC-1",
+    "region": "APAC"
+  },
+  {
+    "bank": "Citibank",
+    "country": "KR",
+    "accounts": ["ACCT-7201", "ACCT-7202"],
+    "expected_by": "2026-06-20T07:00:00Z",
+    "cycle": "APAC-2",
+    "region": "APAC"
+  },
+  {
+    "bank": "DBS",
+    "country": "SG",
+    "accounts": ["ACCT-1001"],
+    "expected_by": "2026-06-23T04:00:00Z",
+    "cycle": "APAC-1",
+    "region": "APAC"
+  },
+  {
+    "bank": "MUFG",
+    "country": "JP",
+    "accounts": ["ACCT-3301"],
+    "expected_by": "2026-06-23T05:00:00Z",
+    "cycle": "APAC-1",
+    "region": "APAC"
+  },
+  {
+    "bank": "HSBC",
+    "country": "SG",
+    "accounts": ["ACCT-1050"],
+    "expected_by": "2026-06-23T04:00:00Z",
+    "cycle": "APAC-1",
+    "region": "APAC"
+  },
+  {
+    "bank": "JPMorgan",
+    "country": "US",
+    "accounts": ["ACCT-9001", "ACCT-9002"],
+    "expected_by": "2026-06-23T14:00:00Z",
+    "cycle": "NORAM-1",
+    "region": "NORAM"
+  }
+]
