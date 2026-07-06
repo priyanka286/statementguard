@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StatementGuard — CMU Capstone</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/night.min.css">
+<style>
+  .reveal h1 { font-size: 2.2em; color: #58a6ff; }
+  .reveal h2 { font-size: 1.6em; color: #79c0ff; }
+  .reveal h3 { font-size: 1.2em; color: #a5d6ff; }
+  .reveal table { font-size: 0.7em; margin: 0 auto; }
+  .reveal table th { background: #1f3044; color: #58a6ff; }
+  .reveal table td { background: #0d1117; }
+  .reveal .subtitle { font-size: 0.8em; color: #8b949e; margin-top: 0.5em; }
+  .reveal .highlight { color: #ffa657; font-weight: bold; }
+  .reveal .constraint { color: #f85149; }
+  .reveal ul { font-size: 0.85em; }
+  .reveal li { margin-bottom: 0.4em; }
+  .reveal .small { font-size: 0.7em; color: #8b949e; }
+  .reveal blockquote { border-left: 4px solid #58a6ff; padding-left: 1em; font-style: italic; color: #c9d1d9; }
+  .architecture-box { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1em; margin: 0.5em auto; max-width: 80%; font-family: monospace; font-size: 0.8em; }
+  .metric-good { color: #3fb950; }
+  .metric-warn { color: #d29922; }
+</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<!-- Slide 1: Title -->
+<section>
+  <h1>StatementGuard</h1>
+  <h3>An Autonomous Multi-Agent System for<br>Bank Statement Gap Detection and Resolution</h3>
+  <p class="subtitle">Priyanka Mehrotra<br>CMU AI Agentic Systems — Capstone Project<br>July 2026</p>
+</section>
+
+<!-- Slide 2: The Problem -->
+<section>
+  <h2>The Problem</h2>
+  <p><em>Daily bank statement monitoring at enterprise scale is broken.</em></p>
+  <ul>
+    <li><span class="highlight">3,600+</span> accounts | <span class="highlight">80+</span> banks | <span class="highlight">7</span> daily cycles | <span class="highlight">6</span> regions</li>
+    <li>Analysts spend <span class="highlight">3.5–9 hours/day</span> on manual inspection</li>
+    <li>False positive rates spike to 15–20% when key staff unavailable</li>
+    <li>Institutional knowledge is undocumented, concentrated in few people</li>
+    <li>A missed gap can mask <span class="constraint">millions in unreconciled transactions</span></li>
+  </ul>
+  <blockquote>The cost of a false negative far exceeds the cost of a false positive.</blockquote>
+</section>
+
+<!-- Slide 3: Users and Stakes -->
+<section>
+  <h2>Users and Stakes</h2>
+  <h3>Primary Users</h3>
+  <ul>
+    <li><strong>Treasury Operations analysts</strong> — execute daily monitoring cycles</li>
+    <li><strong>Regional Treasury Center leads</strong> — manage escalations and bank relationships</li>
+  </ul>
+  <h3>What's at Stake</h3>
+  <ul>
+    <li>Month-end close delays</li>
+    <li>Undetected reconciliation breaks (growing silently)</li>
+    <li>Banking relationship damage from over-contacting</li>
+    <li>Zero reliable metrics on process health</li>
+  </ul>
+</section>
+
+<!-- Slide 4: System Goal -->
+<section>
+  <h2>System Goal</h2>
+  <p>Reduce monitoring from <span class="highlight">3.5–9 hours</span> → <span class="highlight">under 30 minutes</span></p>
+  <table>
+    <thead><tr><th>Metric</th><th>Target</th></tr></thead>
+    <tbody>
+      <tr><td>False positive rate</td><td>&lt; 2%</td></tr>
+      <tr><td>False negative rate</td><td>&lt; 1%</td></tr>
+      <tr><td>Time to detection</td><td>&lt; 5 minutes</td></tr>
+      <tr><td>Analyst review load</td><td>Only 10–20% of cases</td></tr>
+    </tbody>
+  </table>
+  <p class="constraint" style="margin-top:1em;">Key constraint: The agent observes, triages, and communicates —<br>it <em>never</em> modifies financial data.</p>
+</section>
+
+<!-- Slide 5: Architecture Diagram -->
+<section>
+  <h2>Architecture — Four Agents</h2>
+  <svg viewBox="0 0 900 420" style="max-width:85%; margin:0 auto; display:block;" xmlns="http://www.w3.org/2000/svg">
+    <!-- Agent boxes -->
+    <rect x="30" y="150" width="160" height="80" rx="12" fill="#1f3044" stroke="#58a6ff" stroke-width="2"/>
+    <text x="110" y="185" text-anchor="middle" fill="#58a6ff" font-size="16" font-weight="bold">Ingestion</text>
+    <text x="110" y="210" text-anchor="middle" fill="#8b949e" font-size="11">Parse emails</text>
+    <text x="110" y="225" text-anchor="middle" fill="#8b949e" font-size="11">Extract accounts</text>
+
+    <rect x="260" y="150" width="160" height="80" rx="12" fill="#1f3044" stroke="#ffa657" stroke-width="2"/>
+    <text x="340" y="185" text-anchor="middle" fill="#ffa657" font-size="16" font-weight="bold">Triage</text>
+    <text x="340" y="210" text-anchor="middle" fill="#8b949e" font-size="11">Pattern matching</text>
+    <text x="340" y="225" text-anchor="middle" fill="#8b949e" font-size="11">Confidence scoring</text>
+
+    <rect x="490" y="150" width="160" height="80" rx="12" fill="#1f3044" stroke="#3fb950" stroke-width="2"/>
+    <text x="570" y="185" text-anchor="middle" fill="#3fb950" font-size="16" font-weight="bold">Outreach</text>
+    <text x="570" y="210" text-anchor="middle" fill="#8b949e" font-size="11">Draft comms</text>
+    <text x="570" y="225" text-anchor="middle" fill="#8b949e" font-size="11">Send to bank</text>
+
+    <rect x="490" y="310" width="160" height="80" rx="12" fill="#1f3044" stroke="#f85149" stroke-width="2"/>
+    <text x="570" y="345" text-anchor="middle" fill="#f85149" font-size="16" font-weight="bold">Escalation</text>
+    <text x="570" y="370" text-anchor="middle" fill="#8b949e" font-size="11">Timer-based follow-ups</text>
+    <text x="570" y="385" text-anchor="middle" fill="#8b949e" font-size="11">4h → 8h → 24h → 48h</text>
+
+    <!-- Arrows -->
+    <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c9d1d9"/></marker></defs>
+    <line x1="190" y1="190" x2="255" y2="190" stroke="#c9d1d9" stroke-width="2" marker-end="url(#arr)"/>
+    <line x1="420" y1="190" x2="485" y2="190" stroke="#c9d1d9" stroke-width="2" marker-end="url(#arr)"/>
+    <line x1="570" y1="230" x2="570" y2="305" stroke="#c9d1d9" stroke-width="2" marker-end="url(#arr)"/>
+
+    <!-- Confidence split from Triage -->
+    <line x1="340" y1="230" x2="340" y2="350" stroke="#d29922" stroke-width="1.5" stroke-dasharray="5,3"/>
+    <line x1="340" y1="350" x2="485" y2="350" stroke="#d29922" stroke-width="1.5" stroke-dasharray="5,3" marker-end="url(#arr)"/>
+    <text x="370" y="295" fill="#d29922" font-size="10">confidence &lt; 0.8</text>
+
+    <!-- Data sources -->
+    <rect x="720" y="60" width="140" height="50" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+    <text x="790" y="85" text-anchor="middle" fill="#79c0ff" font-size="12">DynamoDB</text>
+    <text x="790" y="100" text-anchor="middle" fill="#8b949e" font-size="10">Patterns &amp; History</text>
+
+    <rect x="720" y="140" width="140" height="50" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+    <text x="790" y="165" text-anchor="middle" fill="#79c0ff" font-size="12">ChromaDB</text>
+    <text x="790" y="180" text-anchor="middle" fill="#8b949e" font-size="10">Analyst Knowledge</text>
+
+    <rect x="720" y="220" width="140" height="50" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+    <text x="790" y="245" text-anchor="middle" fill="#79c0ff" font-size="12">Holiday Calendar</text>
+    <text x="790" y="260" text-anchor="middle" fill="#8b949e" font-size="10">Copp Clark Data</text>
+
+    <!-- Lines from Triage to data sources -->
+    <line x1="420" y1="170" x2="715" y2="85" stroke="#30363d" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="420" y1="185" x2="715" y2="165" stroke="#30363d" stroke-width="1" stroke-dasharray="3,3"/>
+    <line x1="420" y1="200" x2="715" y2="245" stroke="#30363d" stroke-width="1" stroke-dasharray="3,3"/>
+
+    <!-- Input -->
+    <rect x="30" y="40" width="160" height="50" rx="8" fill="#0d1117" stroke="#30363d" stroke-width="1.5"/>
+    <text x="110" y="65" text-anchor="middle" fill="#79c0ff" font-size="12">Monitoring Emails</text>
+    <text x="110" y="80" text-anchor="middle" fill="#8b949e" font-size="10">7 cycles/day × 6 regions</text>
+    <line x1="110" y1="90" x2="110" y2="145" stroke="#c9d1d9" stroke-width="2" marker-end="url(#arr)"/>
+
+    <!-- Human in the loop -->
+    <rect x="260" y="40" width="160" height="50" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="1.5"/>
+    <text x="340" y="62" text-anchor="middle" fill="#3fb950" font-size="12">👤 Human Analyst</text>
+    <text x="340" y="80" text-anchor="middle" fill="#8b949e" font-size="10">Override / Approve</text>
+    <line x1="340" y1="90" x2="340" y2="145" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+
+    <!-- LangGraph label -->
+    <text x="450" y="415" text-anchor="middle" fill="#8b949e" font-size="12" font-style="italic">Coordination: LangGraph state machine with typed state contracts</text>
+  </svg>
+</section>
+
+<!-- Slide 5b: Data Flow -->
+<section>
+  <h2>End-to-End Data Flow</h2>
+  <svg viewBox="0 0 900 350" style="max-width:85%; margin:0 auto; display:block;" xmlns="http://www.w3.org/2000/svg">
+    <!-- Flow steps -->
+    <rect x="20" y="130" width="120" height="60" rx="8" fill="#161b22" stroke="#58a6ff" stroke-width="2"/>
+    <text x="80" y="158" text-anchor="middle" fill="#58a6ff" font-size="12" font-weight="bold">Email Inbox</text>
+    <text x="80" y="175" text-anchor="middle" fill="#8b949e" font-size="10">Graph API poll</text>
+
+    <rect x="170" y="130" width="120" height="60" rx="8" fill="#161b22" stroke="#58a6ff" stroke-width="2"/>
+    <text x="230" y="158" text-anchor="middle" fill="#58a6ff" font-size="12" font-weight="bold">Parse &amp; Extract</text>
+    <text x="230" y="175" text-anchor="middle" fill="#8b949e" font-size="10">Attachment → JSON</text>
+
+    <rect x="320" y="130" width="120" height="60" rx="8" fill="#161b22" stroke="#ffa657" stroke-width="2"/>
+    <text x="380" y="158" text-anchor="middle" fill="#ffa657" font-size="12" font-weight="bold">Pattern Match</text>
+    <text x="380" y="175" text-anchor="middle" fill="#8b949e" font-size="10">DynamoDB lookup</text>
+
+    <rect x="470" y="130" width="120" height="60" rx="8" fill="#161b22" stroke="#ffa657" stroke-width="2"/>
+    <text x="530" y="158" text-anchor="middle" fill="#ffa657" font-size="12" font-weight="bold">ToT Reasoning</text>
+    <text x="530" y="175" text-anchor="middle" fill="#8b949e" font-size="10">3 hypotheses scored</text>
+
+    <rect x="620" y="80" width="120" height="50" rx="8" fill="#161b22" stroke="#3fb950" stroke-width="2"/>
+    <text x="680" y="105" text-anchor="middle" fill="#3fb950" font-size="12" font-weight="bold">Suppress</text>
+    <text x="680" y="120" text-anchor="middle" fill="#8b949e" font-size="10">conf ≥ 0.8</text>
+
+    <rect x="620" y="185" width="120" height="50" rx="8" fill="#161b22" stroke="#f85149" stroke-width="2"/>
+    <text x="680" y="210" text-anchor="middle" fill="#f85149" font-size="12" font-weight="bold">Escalate</text>
+    <text x="680" y="225" text-anchor="middle" fill="#8b949e" font-size="10">conf &lt; 0.8</text>
+
+    <rect x="780" y="185" width="100" height="50" rx="8" fill="#161b22" stroke="#f85149" stroke-width="2"/>
+    <text x="830" y="210" text-anchor="middle" fill="#f85149" font-size="12" font-weight="bold">Outreach</text>
+    <text x="830" y="225" text-anchor="middle" fill="#8b949e" font-size="10">Draft → Send</text>
+
+    <!-- Arrows -->
+    <defs><marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M 0 0 L 10 5 L 0 10 z" fill="#c9d1d9"/></marker></defs>
+    <line x1="140" y1="160" x2="165" y2="160" stroke="#c9d1d9" stroke-width="2" marker-end="url(#arr2)"/>
+    <line x1="290" y1="160" x2="315" y2="160" stroke="#c9d1d9" stroke-width="2" marker-end="url(#arr2)"/>
+    <line x1="440" y1="160" x2="465" y2="160" stroke="#c9d1d9" stroke-width="2" marker-end="url(#arr2)"/>
+    <line x1="590" y1="145" x2="615" y2="110" stroke="#3fb950" stroke-width="2" marker-end="url(#arr2)"/>
+    <line x1="590" y1="175" x2="615" y2="200" stroke="#f85149" stroke-width="2" marker-end="url(#arr2)"/>
+    <line x1="740" y1="210" x2="775" y2="210" stroke="#c9d1d9" stroke-width="2" marker-end="url(#arr2)"/>
+
+    <!-- Decision diamond -->
+    <polygon points="580,130 600,160 580,190 560,160" fill="#0d1117" stroke="#d29922" stroke-width="2"/>
+    <text x="580" y="163" text-anchor="middle" fill="#d29922" font-size="9">?</text>
+
+    <!-- Percentages -->
+    <text x="680" y="75" text-anchor="middle" fill="#3fb950" font-size="11" font-weight="bold">~85% auto-resolved</text>
+    <text x="680" y="250" text-anchor="middle" fill="#f85149" font-size="11" font-weight="bold">~15% need action</text>
+
+    <!-- Timer -->
+    <text x="830" y="250" text-anchor="middle" fill="#8b949e" font-size="10">⏱ 4h → 8h → 24h escalation</text>
+  </svg>
+  <p class="small" style="margin-top:0.5em;">Entire pipeline executes in &lt; 5 seconds per cycle. Guardrails halt processing if &gt; 40% of accounts flagged.</p>
+</section>
+
+<!-- Slide 6: Triage Deep Dive -->
+<section>
+  <h2>Triage — The Critical Decision</h2>
+  <h3>Hybrid Retrieval</h3>
+  <ul>
+    <li><strong>DynamoDB</strong> — Structured lookups (bank + country + day) → resolves 85–90%</li>
+    <li><strong>ChromaDB</strong> — Vector search for unstructured analyst knowledge</li>
+  </ul>
+  <h3>Tree-of-Thought (Ambiguous Cases)</h3>
+  <ul>
+    <li>Generate 3 candidate explanations</li>
+    <li>Score each against evidence</li>
+    <li>Prune weakest; route to human if confidence &lt; 0.8</li>
+  </ul>
+  <blockquote>Single-pass would escalate account #1 from Bangladesh before recognizing a holiday explains all 12 gaps.</blockquote>
+</section>
+
+<!-- Slide 7: Safety -->
+<section>
+  <h2>Safety and Guardrails</h2>
+  <table>
+    <thead><tr><th>Layer</th><th>Check</th></tr></thead>
+    <tbody>
+      <tr><td>Pre-generation</td><td>Attachment validation, calendar freshness</td></tr>
+      <tr><td>During-generation</td><td>Confidence gate (0.8 threshold)</td></tr>
+      <tr><td>Post-generation</td><td>Outreach content verified against source</td></tr>
+      <tr><td>Runtime</td><td>Volume anomaly halt (40%+ flagged → stop)</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:1em;"><strong>Fail-safe principle:</strong> When uncertain, <span class="metric-good">escalate</span> — never <span class="constraint">suppress</span>.</p>
+  <p class="small">Agent has zero access to modify financial data, payments, or account configurations.</p>
+</section>
+
+<!-- Slide 8: Design Evolution -->
+<section>
+  <h2>Design Evolution</h2>
+  <table>
+    <thead><tr><th>Transition</th><th>Key Insight</th></tr></thead>
+    <tbody>
+      <tr><td>Problem → Reasoning</td><td>Triage is the only non-trivial decision</td></tr>
+      <tr><td>Reasoning → Retrieval</td><td>Agent can't decide without institutional knowledge</td></tr>
+      <tr><td>Retrieval → ToT</td><td>Single-pass commits too early; need parallel hypotheses</td></tr>
+      <tr><td>ToT → Multi-Agent</td><td>Single agent exceeds context limits; decompose</td></tr>
+      <tr><td>Architecture → Safety</td><td>Guardrails + evaluation + humans = closed loop</td></tr>
+    </tbody>
+  </table>
+  <p class="small" style="margin-top:1em;"><em>Each module built directly on the prior module's limitations.</em></p>
+</section>
+
+<!-- Slide 9: Demo -->
+<section>
+  <h2>Working Demo</h2>
+  <p><code>agent_demo.py</code> — 413 lines, Python + LangGraph (synthetic data, simulated confidence)</p>
+  <img src="docs/demo_screenshot.svg" alt="Demo terminal output" style="max-height: 480px; border-radius: 8px; margin-top: 0.5em;">
+  <p class="small">Full pipeline: 8 accounts processed, 75% auto-suppressed, 25% escalated with outreach. Total time: 1.9s</p>
+</section>
+
+<!-- Slide 10: Evaluation -->
+<section>
+  <h2>Evaluation Results</h2>
+  <table>
+    <thead><tr><th>Metric</th><th>Target</th><th>Result</th></tr></thead>
+    <tbody>
+      <tr><td>Suppression accuracy</td><td>&gt; 95%</td><td class="metric-good">100%</td></tr>
+      <tr><td>False positive rate</td><td>&lt; 2%</td><td class="metric-good">0%</td></tr>
+      <tr><td>Escalation rate</td><td>10–20%</td><td class="metric-warn">50%</td></tr>
+      <tr><td>Time to detection</td><td>&lt; 5 min</td><td class="metric-good">&lt; 5 sec</td></tr>
+      <tr><td>Analyst override rate</td><td>&lt; 10%</td><td>N/A</td></tr>
+    </tbody>
+  </table>
+  <p style="margin-top:1em;" class="small"><strong>Limitation:</strong> Results from 3 hand-crafted scenarios. Production validation requires 30+ days shadow mode alongside human analysts.</p>
+</section>
+
+<!-- Slide 11: Next Steps -->
+<section>
+  <h2>Limitations and Next Steps</h2>
+  <h3>Not Yet Implemented</h3>
+  <ul>
+    <li>Escalation Agent (async timer logic)</li>
+    <li>Full beam search in Triage (demo uses single-pass)</li>
+    <li>Live email integration (requires auth)</li>
+  </ul>
+  <h3>Path to Production</h3>
+  <ol>
+    <li>Shadow mode — 1 region, 30 days</li>
+    <li>Escalation Agent — timer-based follow-ups</li>
+    <li>Live email — Graph API polling</li>
+    <li>Fine-tuning — SFT on analyst override data</li>
+    <li>Multi-region — APAC → EMEA → Americas</li>
+  </ol>
+</section>
+
+<!-- Slide 12: Summary -->
+<section>
+  <h2>Key Takeaways</h2>
+  <ul>
+    <li><strong>Multi-agent decomposition</strong> for complex operational workflows</li>
+    <li><strong>Hybrid retrieval</strong> (structured + vector) for enterprise knowledge</li>
+    <li><strong>Tree-of-Thought</strong> for ambiguous classification under uncertainty</li>
+    <li><strong>Safety-first design</strong> — fail toward humans, never toward silence</li>
+  </ul>
+  <blockquote>The agent doesn't replace analysts — it gives them back 80% of their day.</blockquote>
+  <p style="margin-top:1em;"><a href="https://github.com/priyanka286/statementguard" style="color:#58a6ff;">github.com/priyanka286/statementguard</a></p>
+  <p class="small">Thank you.</p>
+</section>
+
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.min.js"></script>
+<script>
+Reveal.initialize({
+  hash: true,
+  transition: 'slide',
+  slideNumber: true,
+  width: 1280,
+  height: 720
+});
+</script>
+</body>
+</html>
